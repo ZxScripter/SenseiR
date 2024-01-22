@@ -86,10 +86,10 @@ def extract_episode_number(filename):
 
     return None
 
-@Client.on_message(filters.private & filters.command("autorename"))
+@Client.on_message(filters.private & filters.command("format"))
 async def auto_rename_command(client, message):
     user_id = message.from_user.id
-    format_template = message.text.split("/autorename", 1)[1].strip()
+    format_template = message.text.split("/format", 1)[1].strip()
     await db.set_format_template(user_id, format_template)
     await message.reply_text("Auto rename format updated successfully!")
 
