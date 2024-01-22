@@ -68,13 +68,13 @@ class Database:
         return user.get('media_type', None)
 
     async def add_admin(self, user_id):
-        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_user_admin': True}})
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': True}})
 
     async def remove_admin(self, user_id):
-        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_user_admin': False}})
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': False}})
 
-    async def is_admin_users(self):
-        admin_users = self.col.find({'is_user_admin': True})
+    async def is_user_admin(self):
+        admin_users = self.col.find({'is_admin': True})
         return [user['_id'] async for user in admin_users]
 
 
