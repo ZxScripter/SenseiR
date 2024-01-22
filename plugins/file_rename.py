@@ -104,7 +104,6 @@ async def set_media_command(client, message):
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio) & filters.user(Config.ADMIN))
 async def auto_rename_files(client, message):
     user_id = message.from_user.id
-    
     if user_id in user_file_counts:
         user_file_counts[user_id] += 1
         if user_file_counts[user_id] > file_count_limit:
