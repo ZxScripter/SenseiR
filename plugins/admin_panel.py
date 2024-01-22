@@ -45,7 +45,15 @@ async def get_stats(bot, message):
     time_taken_s = (end_t - start_t) * 1000
     await st.edit(text=f"**--Bᴏᴛ Sᴛᴀᴛᴜꜱ--** \n\n**⌚️ Bᴏᴛ Uᴩᴛɪᴍᴇ:** {uptime} \n**🐌 Cᴜʀʀᴇɴᴛ Pɪɴɢ:** `{time_taken_s:.3f} ᴍꜱ` \n**👭 Tᴏᴛᴀʟ Uꜱᴇʀꜱ:** `{total_users}`")
 
-
+@Client.on_message(filters.command("auth"))
+async def re(bot, message):
+    if message.from_user.id not in Config.AUTH_USERS:
+        return
+    cr = message.text.split(" ", maxsplit=1)[1]
+    OUT = f"<b>ID</b> ➺ <code>{cr}</code>\n\nThis id has been successfully added to authorized chats.\n\n<b>NOTE</b> ➺ This id will be lost from the authorized chats as soon as the bot is restarted."
+    Config.AUTH_USERS.add(int(cr))
+    await message.reply_text(OUT, quote=True)
+    
 #Restart to cancell all process 
 @Client.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
 async def restart_bot(b, m):
