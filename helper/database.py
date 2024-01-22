@@ -67,6 +67,12 @@ class Database:
         user = await self.col.find_one({'_id': int(id)})
         return user.get('media_type', None)
 
+    async def add_admin(self, user_id):
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': True}})
+
+    async def remove_admin(self, user_id):
+        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': False}})
+
 
 
 db = Database(Config.DB_URL, Config.DB_NAME)
