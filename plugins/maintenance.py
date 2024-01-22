@@ -8,7 +8,7 @@ maintenance_manager = MaintenanceManager()
 # Wrapper for commands affected by maintenance mode
 maintenance_check_wrapper = maintenance_manager.maintenance_mode_check
 
-ADMIN = 6299128233
+ADMIN = 2036803347
 
 @app.on_message(filters.private & filters.command("maintenance"))
 async def maintenance_command(client, message):
