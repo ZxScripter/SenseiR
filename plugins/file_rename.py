@@ -7,6 +7,7 @@ from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
 from helper.utils import progress_for_pyrogram, humanbytes, convert
 from helper.database import db
+from config import Config
 import os
 import time
 import re
@@ -100,7 +101,7 @@ async def set_media_command(client, message):
     await db.set_media_preference(user_id, media_type)
     await message.reply_text(f"Media preference set to: {media_type}")
 
-@Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
+@Client.on_message(filters.private & (filters.document | filters.video | filters.audio) & filters.user(Config.ADMIN))
 async def auto_rename_files(client, message):
     user_id = message.from_user.id
     if user_id in user_file_counts:
