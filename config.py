@@ -70,7 +70,7 @@ Pay Using UPI "animesensei@ibl"
 Send a screenshot to @Sensei_Rimuru. Non-residents of India from other countries can contact us via PM for more information.</b>"""
 
 #⚠️ Dᴏɴ'ᴛ Rᴇᴍᴏᴠᴇ Oᴜʀ Cʀᴇᴅɪᴛꜱ @ᴩyʀᴏ_ʙᴏᴛᴢ🙏🥲
-    COMMANDS_TXT = """<u>/format- Format Example : season - for Season. episode : For Episode. quality : For Quality</u>
+    COMMANDS_TXT = """<u>**/format- Format Example : season - for Season. episode : For Episode. quality : For Quality**</u>
     """
 
     PROGRESS_BAR = """<b>\n
