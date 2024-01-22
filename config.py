@@ -36,7 +36,7 @@ class Txt(object):
 ‼️ ᴇxᴘʟᴏʀᴇ ᴍʏ ᴄᴏᴍᴍᴀɴᴅs ʙʏ ᴄʟɪᴄᴋɪɴɢ ᴏɴ ᴛʜᴇ "⚡ ᴄᴏᴍᴍᴀɴᴅs ⚡" ʙᴜᴛᴛᴏɴ ᴛᴏ ᴜsᴇ ᴍᴇ ᴍᴏʀᴇ ᴘʀᴇᴄɪsᴇʟʏ.</b>"""
     
     FILE_NAME_TXT = """
-    <u><b>SETUP AUTO RENAME FORMAT</b></u>\n\nᴜsᴇ ᴛʜᴇsᴇ ᴋᴇʏᴡᴏʀᴅs ᴛᴏ sᴇᴛᴜᴘ ᴄᴜsᴛᴏᴍ ғɪʟᴇ ɴᴀᴍᴇ\n\n➝ episode :- ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴇᴘɪsᴏᴅᴇ ɴᴜᴍʙᴇʀ\n➝ quality :- ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴠɪᴅᴇᴏ ʀᴇsᴏʟᴜᴛɪᴏɴ\n\n‣ <b>Example :</b> /autorename [AS] S01 - Eepisode Tensura [quality] [Sub] @Ongoing_Sensei.mkv\n\n‣ <b>ʏᴏᴜʀ ᴄᴜʀʀᴇɴᴛ ʀᴇɴᴀᴍᴇ ғᴏʀᴍᴀᴛ :</b> {format_template}
+    <u><b>SETUP AUTO RENAME FORMAT</b></u>\n\nᴜsᴇ ᴛʜᴇsᴇ ᴋᴇʏᴡᴏʀᴅs ᴛᴏ sᴇᴛᴜᴘ ᴄᴜsᴛᴏᴍ ғɪʟᴇ ɴᴀᴍᴇ\n\n➝ episode :- ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴇᴘɪsᴏᴅᴇ ɴᴜᴍʙᴇʀ\n➝ quality :- ᴛᴏ ʀᴇᴘʟᴀᴄᴇ ᴠɪᴅᴇᴏ ʀᴇsᴏʟᴜᴛɪᴏɴ\n\n‣ <b>Example :</b> /format [AS] S01 - Eepisode Tensura [quality] [Sub] @Ongoing_Sensei.mkv\n\n‣ <b>ʏᴏᴜʀ ᴄᴜʀʀᴇɴᴛ ʀᴇɴᴀᴍᴇ ғᴏʀᴍᴀᴛ :</b> {format_template}
     """
     
     ABOUT_TXT = f"""
