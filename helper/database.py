@@ -72,11 +72,10 @@ class Database:
 
     async def remove_admin(self, user_id):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': False}})
-
-    async def is_user_admin(self):
-        admin_users = self.col.find({'is_admin': True})
-        return [user['_id'] async for user in admin_users]
-
+        
+    async def is_user_admin(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return bool(user)
 
 db = Database(Config.DB_URL, Config.DB_NAME)
         
