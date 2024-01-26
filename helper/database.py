@@ -66,16 +66,10 @@ class Database:
     async def get_media_preference(self, id):
         user = await self.col.find_one({'_id': int(id)})
         return user.get('media_type', None)
-
-    async def add_admin(self, user_id):
-        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': True}})
-
-    async def remove_admin(self, user_id):
-        await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': False}})
         
-        async def get_sudo_users(self):
+    async def get_sudo_users(self):
         sudo_users = []
-        async for user in self.col.find({'is_sudo': True}):
+    async for user in self.col.find({'is_sudo': True}):
             sudo_users.append(user['_id'])
         return sudo_users
 
