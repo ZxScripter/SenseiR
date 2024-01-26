@@ -9,7 +9,7 @@ from config import Config, Txt
 async def add_admin(client, message):
     if len(message.command) > 1:
         user_id = int(message.command[1])
-        await db.add_admin(user_id)
+        await db.add_admin_users(user_id)
         await message.reply_text(f"User {user_id} has been added as an admin.")
     else:
         await message.reply_text("Please provide the user's ID to add them as an admin.")
@@ -18,7 +18,7 @@ async def add_admin(client, message):
 async def remove_admin(client, message):
     if len(message.command) > 1:
         user_id = int(message.command[1])
-        await db.remove_admin(user_id)
+        await db.remove_admin_users(user_id)
         await message.reply_text(f"User {user_id} has been removed as an admin.")
     else:
         await message.reply_text("Please provide the user's ID to remove them as an admin.")
