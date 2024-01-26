@@ -101,16 +101,9 @@ async def set_media_command(client, message):
     await db.set_media_preference(user_id, media_type)
     await message.reply_text(f"Media preference set to: {media_type}")
 
-@Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
+@Client.on_message(filters.private & (filters.document | filters.video | filters.audio) & filters.user(Config.ADMIN))
 async def auto_rename_files(client, message):
     user_id = message.from_user.id
-
-    if user_id in Config.AUTH_USERS:
-        format_template = await db.get_format_template(user_id)
-        media_preference = await db.get_media_preference(user_id)
-        
-    if not format_template:
-        return await message.reply_text("ʏᴏ , ʏᴏᴜ ꜱᴇᴇᴍ ᴛᴏ ᴍɪꜱꜱ ꜱᴏᴍᴇᴛʜɪɴɢ, ᴄʜᴄᴇᴋ ʏᴏᴜʀ /ꜰᴏʀᴍᴀᴛ ᴀɢᴀɪɴ 😮‍💨")
         
     if user_id in user_file_counts:
         user_file_counts[user_id] += 1
