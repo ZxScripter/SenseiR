@@ -73,9 +73,22 @@ class Database:
     async def remove_admin(self, user_id):
         await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_admin': False}})
         
-    async def is_user_admin(self, id):
-        user = await self.col.find_one({'_id': int(id)})
-        return bool(user)
+        async def get_sudo_users(self):
+        sudo_users = []
+        async for user in self.col.find({'is_sudo': True}):
+            sudo_users.append(user['_id'])
+        return sudo_users
+
+    async def add_sudo_user(self, user_id):
+        user = await self.col.find_one({'_id': int(user_id)})
+        if user:
+            if 'is_sudo' not in user:
+                await self.col.update_one({'_id': int(user_id)}, {'$set': {'is_sudo': True}})
+                return True
+        return False
+
+    async def remove_sudo_user(self, user_id):
+        await self.col.update_one({'_id': int(user_id)}, {'$unset': {'is_sudo': 1}})
 
 db = Database(Config.DB_URL, Config.DB_NAME)
         
