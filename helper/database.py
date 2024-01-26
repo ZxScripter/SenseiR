@@ -68,11 +68,9 @@ class Database:
         return user.get('media_type', None)
         
     async def get_admin_users(self):
-        admin_users = ['_id']
-    async for user in self.col.find({'is_admin': True}):
-            admin_users.append(user['_id'])
-        return admin_users
-
+        admin_users = self.col.find({'is_admin': True})
+        return [user['_id'] async for user in admin_users]
+        
     async def add_admin_user(self, user_id):
         user = await self.col.find_one({'_id': int(user_id)})
         if user:
