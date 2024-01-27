@@ -113,13 +113,13 @@ async def auto_rename_files(client, message):
         return await message.reply_text("ʏᴏ , ʏᴏᴜ ꜱᴇᴇᴍ ᴛᴏ ᴍɪꜱꜱ ꜱᴏᴍᴇᴛʜɪɴɢ, ᴄʜᴄᴇᴋ ʏᴏᴜʀ /ꜰᴏʀᴍᴀᴛ ᴀɢᴀɪɴ 😮‍💨")
         
     if user_id in user_file_counts:
-        user_file_counts[user_id] += 5
+        user_file_counts[user_id] += 7
         if user_file_counts[user_id] > file_count_limit:
             await message.reply_text(f"You have reached the file limit. Please wait for {sleep_duration // 60} minutes before sending more files.")
             await asyncio.sleep(sleep_duration)
             user_file_counts[user_id] = 0
     else:
-        user_file_counts[user_id] = 1
+        user_file_counts[user_id] = 7
         
     format_template = await db.get_format_template(user_id)
     media_preference = await db.get_media_preference(user_id)
