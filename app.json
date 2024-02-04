@@ -26,8 +26,10 @@
             "description": "Your Bot Token From @BotFather",
             "value": ""
         },
-        "ADMIN": {
-            "description":"Add Your User ID multiple is use space to split"
+        "AUTH_USERS": {
+            "description":"Add Your User ID multiple is use space to split",
+            "value": ""
+            "required": true
         },
         "LOG_CHANNEL": {
             "description":"Bot Log Sending Channel (just create a private channel and add bot to admin and take channel id to add this variable) ⚠️ id startswith -100 must",
