@@ -48,12 +48,6 @@
             "required": false
         }
     },
-    "AUTH_USERS": {
-      "description": "Allow only pre-defined users to use this bot as Sudo User. Separate with Space. Just for using Admin Commands.",
-      "value": "1666551439",
-      "required": true
-    }
-  },
     "buildpacks": [
         {
             "url": "heroku/python"
