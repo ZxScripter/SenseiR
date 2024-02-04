@@ -1,4 +1,4 @@
-from pyrogram import Client, filters
+from from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from pyrogram.types import InputMediaDocument, Message 
 from PIL import Image
@@ -14,8 +14,8 @@ import re
 import asyncio
 
 renaming_operations = {}
-file_count_limit = 200
-sleep_duration = 2 * 60 
+file_count_limit = 100
+sleep_duration = 20 * 60 
 
 user_file_counts = {}
 
@@ -28,7 +28,7 @@ patternX = re.compile(r'(\d+)')
 pattern5 = re.compile(r'\b(?:.*?(\d{3,4}[^\dp]*p).*?|.*?(\d{3,4}p))\b', re.IGNORECASE)
 pattern6 = re.compile(r'[([<{]?\s*4k\s*[)\]>}]?', re.IGNORECASE)
 pattern7 = re.compile(r'[([<{]?\s*2k\s*[)\]>}]?', re.IGNORECASE)
-pattern8 = re.compile(r'[([<{]?\s*HDRip\s*[)\]>}]?|\bHDRip\b', re.IGNORECASE)
+pattern8 = re.compile(r'[([<{]?\s*HdRip\s*[)\]>}]?|\bHdRip\b', re.IGNORECASE)
 pattern9 = re.compile(r'[([<{]?\s*4kX264\s*[)\]>}]?', re.IGNORECASE)
 pattern10 = re.compile(r'[([<{]?\s*4kx265\s*[)\]>}]?', re.IGNORECASE)
 
@@ -48,7 +48,7 @@ def extract_quality(filename):
 
     match8 = re.search(pattern8, filename)
     if match8:
-        return "HDRip"
+        return "HdRip"
 
     match9 = re.search(pattern9, filename)
     if match9:
@@ -104,6 +104,14 @@ async def set_media_command(client, message):
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
 async def auto_rename_files(client, message):
     user_id = message.from_user.id
+
+    if user_id in Config.AUTH_USERS:
+        format_template = await db.get_format_template(user_id)
+        media_preference = await db.get_media_preference(user_id)
+        
+    if not format_template:
+        return await message.reply_text("ʏᴏ , ʏᴏᴜ ꜱᴇᴇᴍ ᴛᴏ ᴍɪꜱꜱ ꜱᴏᴍᴇᴛʜɪɴɢ, ᴄʜᴄᴇᴋ ʏᴏᴜʀ /ꜰᴏʀᴍᴀᴛ ᴀɢᴀɪɴ 😮‍💨")
+        
     if user_id in user_file_counts:
         user_file_counts[user_id] += 7
         if user_file_counts[user_id] > file_count_limit:
