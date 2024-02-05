@@ -115,7 +115,7 @@ async def auto_rename_files(client, message):
     if user_id in user_file_counts:
         user_file_counts[user_id] += 30
         if user_file_counts[user_id] > file_count_limit:
-            await message.reply_text(f"You have reached the file limit. Please wait for {sleep_duration // 1} minutes before sending more files.")
+            await message.reply_text(f"You have reached the file limit. Please wait for {sleep_duration // 120} minutes before sending more files.")
             await asyncio.sleep(sleep_duration)
             user_file_counts[user_id] = 0
     else:
