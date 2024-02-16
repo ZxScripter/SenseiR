@@ -1,6 +1,8 @@
 import motor.motor_asyncio
 from config import Config
 from .utils import send_log
+import datetime
+
 
 class Database:
 
@@ -11,17 +13,21 @@ class Database:
 
     def new_user(self, id):
         return dict(
-            _id=int(id),                                   
+            _id=int(id),
             file_id=None,
             caption=None,
-            format_template=None  # Add this line for the format template
+            prefix=None,
+            suffix=None,
+            metadata=False,
+            metadata_code=""" -map 0 -c:s copy -c:a copy -c:v copy -metadata title="Powered By:- @AnimeZenith" -metadata author= "sensei put your name hahha" -metadata:s:s title="Subtitled By :- my grandmother" -metadata:s:a title="By :- my grandfather 
+       " -metadata:s:v title="By:- my dick" """
         )
 
     async def add_user(self, b, m):
         u = m.from_user
         if not await self.is_user_exist(u.id):
             user = self.new_user(u.id)
-            await self.col.insert_one(user)            
+            await self.col.insert_one(user)
             await send_log(b, u)
 
     async def is_user_exist(self, id):
@@ -38,7 +44,7 @@ class Database:
 
     async def delete_user(self, user_id):
         await self.col.delete_many({'_id': int(user_id)})
-    
+
     async def set_thumbnail(self, id, file_id):
         await self.col.update_one({'_id': int(id)}, {'$set': {'file_id': file_id}})
 
@@ -53,19 +59,33 @@ class Database:
         user = await self.col.find_one({'_id': int(id)})
         return user.get('caption', None)
 
-    async def set_format_template(self, id, format_template):
-        await self.col.update_one({'_id': int(id)}, {'$set': {'format_template': format_template}})
+    async def set_prefix(self, id, prefix):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'prefix': prefix}})
 
-    async def get_format_template(self, id):
+    async def get_prefix(self, id):
         user = await self.col.find_one({'_id': int(id)})
-        return user.get('format_template', None)
-        
-    async def set_media_preference(self, id, media_type):
-        await self.col.update_one({'_id': int(id)}, {'$set': {'media_type': media_type}})
-        
-    async def get_media_preference(self, id):
+        return user.get('prefix', None)
+
+    async def set_suffix(self, id, suffix):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'suffix': suffix}})
+
+    async def get_suffix(self, id):
         user = await self.col.find_one({'_id': int(id)})
-        return user.get('media_type', None)
-        
+        return user.get('suffix', None)
+
+    async def set_metadata(self, id, bool_meta):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata': bool_meta}})
+
+    async def get_metadata(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('metadata', None)
+
+    async def set_metadata_code(self, id, metadata_code):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata_code': metadata_code}})
+
+    async def get_metadata_code(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('metadata_code', None)
+
+
 db = Database(Config.DB_URL, Config.DB_NAME)
-        
