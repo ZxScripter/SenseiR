@@ -16,8 +16,7 @@ class Database:
             _id=int(id),
             file_id=None,
             caption=None,
-            prefix=None,
-            suffix=None,
+            format_template=None,
             metadata=False,
             metadata_code=""" -map 0 -c:s copy -c:a copy -c:v copy -metadata title="Powered By:- @AnimeZenith" -metadata author= "sensei put your name hahha" -metadata:s:s title="Subtitled By :- my grandmother" -metadata:s:a title="By :- my grandfather 
        " -metadata:s:v title="By:- my dick" """
@@ -59,19 +58,23 @@ class Database:
         user = await self.col.find_one({'_id': int(id)})
         return user.get('caption', None)
 
-    async def set_prefix(self, id, prefix):
-        await self.col.update_one({'_id': int(id)}, {'$set': {'prefix': prefix}})
+    async def set_format_template(self, id, format_template):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'format_template': format_template}})
 
-    async def get_prefix(self, id):
+    async def get_format_template(self, id):
         user = await self.col.find_one({'_id': int(id)})
-        return user.get('prefix', None)
-
-    async def set_suffix(self, id, suffix):
-        await self.col.update_one({'_id': int(id)}, {'$set': {'suffix': suffix}})
-
-    async def get_suffix(self, id):
+        return user.get('format_template', None)
+        
+    async def set_media_preference(self, id, media_type):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'media_type': media_type}})
+        
+    async def get_media_preference(self, id):
         user = await self.col.find_one({'_id': int(id)})
-        return user.get('suffix', None)
+        return user.get('media_type', None)
+        
+    async def get_media_preference(self, id):
+        user = await self.col.find_one({'_id': int(id)})
+        return user.get('media_type', None)
 
     async def set_metadata(self, id, bool_meta):
         await self.col.update_one({'_id': int(id)}, {'$set': {'metadata': bool_meta}})
