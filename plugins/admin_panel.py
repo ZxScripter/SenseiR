@@ -79,36 +79,38 @@ async def remove_admin_command(bot, message):
 async def admin_list_command(bot, message):
     user_id = message.from_user.id
     is_user_admin = await is_admin(user_id)
-    if not is_user_admin and user_id != Config.ADMIN:
+    if not is_user_admin and user_id not in Config.ADMIN:
         await message.reply_text("Only Bot Owner and Admins can use this command.")
         return
 
-    admin_user_ids = await get_admin_list()  # Fetch the list of admin user IDs
+    admin_user_ids = await get_admin_list()  
     formatted_admins = []
 
-    for user_id in admin_user_ids:
-        user = await client.get_users(user_id)
-        if user:
-            username = user.username
-            full_name = user.first_name if user.first_name else "" 
-            full_name += " " + user.last_name if user.last_name else ""  
-            full_name = full_name.strip() 
+    for admin_id in admin_user_ids:
+        try:
+            user = await bot.get_users(admin_id)
+            if user:
+                username = user.username
+                full_name = user.first_name if user.first_name else "" 
+                full_name += " " + user.last_name if user.last_name else ""  
+                full_name = full_name.strip() 
 
-            if username:
-                profile_link = f"{full_name} - @{username}"
-            else:
-                profile_link = full_name
-            formatted_admins.append(profile_link)
+                if username:
+                    profile_link = f"{full_name} - @{username}"
+                else:
+                    profile_link = full_name
+                formatted_admins.append(profile_link)
+        except Exception as e:
+            print(f"Error fetching user: {e}")
 
     if formatted_admins:
         admins_text = "\n".join(formatted_admins)
-        text = f"<b>ADMEMES:</b>\n\n{admins_text}"
+        text = f"<b>Admin Users:</b>\n\n{admins_text}"
     else:
-        text = "<b>No ADMEMES found.</b>"
+        text = "<b>No admin users found.</b>"
 
     await message.reply_text(text, disable_web_page_preview=True)
     
-
 
 #Restart to cancell all process 
 @Client.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
