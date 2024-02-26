@@ -31,7 +31,7 @@ async def get_stats(bot, message):
 @Client.on_message(filters.command('auth') & filters.private)
 async def add_admin_command(bot, message):
     user_id = message.from_user.id
-    if user_id != Config.ADMIN:
+    if user_id not in Config.ADMIN:
         await message.reply_text("Only Bot Owner can use this command.")
         return
 
@@ -50,7 +50,7 @@ async def add_admin_command(bot, message):
         await message.reply_text(f"<b>User {user_id_to_add} has been added to the admin list.</b>")
     else:
         await message.reply_text(f"<b>User {user_id_to_add} is already an admin.</b>")
-
+        
 
 @Client.on_message(filters.command('unauth') & filters.private)
 async def remove_admin_command(bot, message):
@@ -108,6 +108,8 @@ async def admin_list_command(bot, message):
 
     await message.reply_text(text, disable_web_page_preview=True)
     
+
+
 #Restart to cancell all process 
 @Client.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
 async def restart_bot(b, m):
