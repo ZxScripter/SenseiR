@@ -7,6 +7,7 @@ from hachoir.metadata import extractMetadata
 from hachoir.parser import createParser
 from helper.utils import progress_for_pyrogram, humanbytes, convert
 from helper.database import db
+from helper.admins import is_admin
 from config import Config
 import os
 import time
@@ -105,7 +106,7 @@ async def set_media_command(client, message):
 async def auto_rename_files(client, message):    
     user_id = message.from_user.id
     is_user_admin = await is_admin(user_id)
-    if not is_user_admin and user_id not in ADMINS:        
+    if not is_user_admin and user_id not in Config.ADMIN:        
         return    
         format_template = await db.get_format_template(user_id)
         media_preference = await db.get_media_preference(user_id)
