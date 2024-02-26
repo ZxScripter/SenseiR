@@ -5,23 +5,6 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceRepl
 from helper.database import db
 from config import Config, Txt  
 
-@Client.on_message(filters.command("addadmin") & filters.user(Config.ADMIN))
-async def add_sudo(client, message):
-    if len(message.command) > 1:
-        user_id = int(message.command[1])
-        await db.add_sudo_user(user_id)
-        await message.reply_text(f"User {user_id} has been added as an admin.")
-    else:
-        await message.reply_text("Please provide the user's ID to add them as an admin.")
-
-@Client.on_message(filters.command("rmadmin") & filters.user(Config.ADMIN))
-async def remove_sudo(client, message):
-    if len(message.command) > 1:
-        user_id = int(message.command[1])
-        await db.remove_sudo_user(user_id)
-        await message.reply_text(f"User {user_id} has been removed as an admin.")
-    else:
-        await message.reply_text("Please provide the user's ID to remove them as an admin.")
 
 @Client.on_message(filters.private & filters.command("start"))
 async def start(client, message):
