@@ -29,7 +29,7 @@ async def get_stats(bot, message):
     await st.edit(text=f"**--Bᴏᴛ Sᴛᴀᴛᴜꜱ--** \n\n**⌚️ Bᴏᴛ Uᴩᴛɪᴍᴇ:** {uptime} \n**🐌 Cᴜʀʀᴇɴᴛ Pɪɴɢ:** `{time_taken_s:.3f} ᴍꜱ` \n**👭 Tᴏᴛᴀʟ Uꜱᴇʀꜱ:** `{total_users}`")
 
 @Client.on_message(filters.command('auth') & filters.private)
-async def add_admin_command(client: Bot, message: Message):
+async def add_admin_command(bot, message):
     user_id = message.from_user.id
     if user_id != Config.ADMIN:
         await message.reply_text("Only Bot Owner can use this command.")
@@ -53,7 +53,7 @@ async def add_admin_command(client: Bot, message: Message):
 
 
 @Client.on_message(filters.command('unauth') & filters.private)
-async def remove_admin_command(client: Bot, message: Message):
+async def remove_admin_command(bot, message):
     user_id = message.from_user.id
     if user_id != Config.ADMIN:
         await message.reply_text("Only Bot Owner can use this command.")
@@ -76,7 +76,7 @@ async def remove_admin_command(client: Bot, message: Message):
 
 
 @Client.on_message(filters.command('authorised') & filters.private)
-async def admin_list_command(client: Bot, message: Message):
+async def admin_list_command(bot, message):
     user_id = message.from_user.id
     is_user_admin = await is_admin(user_id)
     if not is_user_admin and user_id != Config.ADMIN:
