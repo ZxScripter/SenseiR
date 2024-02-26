@@ -23,13 +23,28 @@ async def get_stats(bot, message):
     await st.edit(text=f"**--Bᴏᴛ Sᴛᴀᴛᴜꜱ--** \n\n**⌚️ Bᴏᴛ Uᴩᴛɪᴍᴇ:** {uptime} \n**🐌 Cᴜʀʀᴇɴᴛ Pɪɴɢ:** `{time_taken_s:.3f} ᴍꜱ` \n**👭 Tᴏᴛᴀʟ Uꜱᴇʀꜱ:** `{total_users}`")
 
 @Client.on_message(filters.command("auth"))
-async def re(bot, message):
-    if message.from_user.id not in Config.AUTH_USERS:
+async def add_admin_command(client: Bot, message: Message):
+    user_id = message.from_user.id
+    if user_id != Config.ADMINS:
+        await message.reply_text("Only Bot Owner can use this command.")
         return
-    cr = message.text.split(" ", maxsplit=1)[1]
-    OUT = f"<b>ID</b> ➺ <code>{cr}</code>\n\nThis id has been successfully added to authorized chats.\n\n<b>NOTE</b> ➺ This id will be lost from the authorized chats as soon as the bot is restarted."
-    Config.AUTH_USERS.add(int(cr))
-    await message.reply_text(OUT, quote=True)
+
+    # Check if the command has the expected number of arguments
+    if len(message.command) != 2:
+        await message.reply_text("<b>Usage:</b> /addadmin userid")
+        return
+    try:
+        user_id_to_add = int(message.command[1])
+    except ValueError:
+        await message.reply_text("Invalid user ID. Please provide a valid user ID.")
+        return
+    # Add the user to the admin list in the database
+    added = await add_admin(user_id_to_add)
+    if added:
+        await message.reply_text(f"<b>User {user_id_to_add} has been added to the admin list.</b>")
+    else:
+        await message.reply_text(f"<b>User {user_id_to_add} is already an admin.</b>")
+        
     
 #Restart to cancell all process 
 @Client.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
