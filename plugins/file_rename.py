@@ -107,13 +107,15 @@ async def auto_rename_files(client, message):
     user_id = message.from_user.id
     is_user_admin = await is_admin(user_id)
     if not is_user_admin and user_id not in Config.ADMIN:        
+        await message.reply_text("Yᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴜᴛʜᴏʀɪsᴇᴅ ᴛᴏ ᴜsᴇ ᴍᴇ ! Cᴏɴᴛᴀᴄᴛ:- @Sensei_Rimuru")
         return    
-        format_template = await db.get_format_template(user_id)
-        media_preference = await db.get_media_preference(user_id)
+
+    format_template = await db.get_format_template(user_id)
+    media_preference = await db.get_media_preference(user_id)
         
     if not format_template:
         return await message.reply_text("ʏᴏ , ʏᴏᴜ ꜱᴇᴇᴍ ᴛᴏ ᴍɪꜱꜱ ꜱᴏᴍᴇᴛʜɪɴɢ, ᴄʜᴄᴇᴋ ʏᴏᴜʀ /ꜰᴏʀᴍᴀᴛ ᴀɢᴀɪɴ 😮‍💨")
-        
+     
     if user_id in user_file_counts:
         user_file_counts[user_id] += 1
         if user_file_counts[user_id] > file_count_limit:
