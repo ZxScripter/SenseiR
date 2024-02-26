@@ -55,7 +55,7 @@ async def add_admin_command(bot, message):
 @Client.on_message(filters.command('unauth') & filters.private)
 async def remove_admin_command(bot, message):
     user_id = message.from_user.id
-    if user_id != Config.ADMIN:
+    if user_id not in Config.ADMIN:
         await message.reply_text("Only Bot Owner can use this command.")
         return
     # Check if the command has the expected number of arguments
@@ -105,7 +105,7 @@ async def admin_list_command(bot, message):
 
     if formatted_admins:
         admins_text = "\n".join(formatted_admins)
-        text = f"<b>Admin Users:</b>\n\n{admins_text}"
+        text = f"<b>Authorised Users:</b>\n\n{admins_text}"
     else:
         text = "<b>No admin users found.</b>"
 
