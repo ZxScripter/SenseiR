@@ -102,23 +102,21 @@ async def set_media_command(client, message):
     media_type = message.text.split("/setmedia", 1)[1].strip().lower()
     await db.set_media_preference(user_id, media_type)
     await message.reply_text(f"Media preference set to: {media_type}")
-
 @Client.on_message(filters.private & (filters.document | filters.video | filters.audio))
 async def auto_rename_files(client, message):    
     user_id = message.from_user.id
     firstname = message.from_user.first_name
     is_user_admin = await is_admin(user_id)
-    
     if not is_user_admin and user_id not in Config.ADMIN:        
-        await message.reply_text("You are not authorized to use me! Contact: @Sensei_Rimuru")
+        await message.reply_text("Yᴏᴜ ᴀʀᴇ ɴᴏᴛ ᴀᴜᴛʜᴏʀɪsᴇᴅ ᴛᴏ ᴜsᴇ ᴍᴇ ! Cᴏɴᴛᴀᴄᴛ:- @Sensei_Rimuru")
         return    
 
     format_template = await db.get_format_template(user_id)
     media_preference = await db.get_media_preference(user_id)
         
     if not format_template:
-        return await message.reply_text("Please set an auto rename format using /format")
-
+        return await message.reply_text("ʏᴏ , ʏᴏᴜ ꜱᴇᴇᴍ ᴛᴏ ᴍɪꜱꜱ ꜱᴏᴍᴇᴛʜɪɴɢ, ᴄʜᴄᴇᴋ ʏᴏᴜʀ /ꜰᴏʀᴍᴀᴛ ᴀɢᴀɪɴ 😮‍💨")
+     
     if user_id in user_file_counts:
         user_file_counts[user_id] += 1
         if user_file_counts[user_id] > file_count_limit:
@@ -132,7 +130,7 @@ async def auto_rename_files(client, message):
     media_preference = await db.get_media_preference(user_id)
 
     if not format_template:
-        return await message.reply_text("Please set an auto rename format using /format")
+        return await message.reply_text("ᴘʟᴇᴀsᴇ sᴇᴛ ᴀɴ ᴀᴜᴛᴏʀᴇɴᴀᴍᴇ ғᴏʀᴍᴀᴛ /format")
 
     if message.document:
         file_id = message.document.file_id
@@ -151,8 +149,8 @@ async def auto_rename_files(client, message):
 
     print(f"Original File Name: {file_name}")
     logs_caption = f"BEFORE\n{firstname}\n{user_id}\n\n**{file_name}**"
-    await client.send_document(FILES_CHANNEL, document=file_id, caption=logs_caption)    
-    
+    await client.send_document(FILES_CHANNEL, document=file_id, caption=logs_caption)
+           
     if file_id in renaming_operations:
         elapsed_time = (datetime.now() - renaming_operations[file_id]).seconds
         if elapsed_time < 10:
@@ -186,9 +184,9 @@ async def auto_rename_files(client, message):
         file_path = f"downloads/{new_file_name}"
         file = message
 
-        download_msg = await message.reply_text(text="Trying to download...")
+        download_msg = await message.reply_text(text="ᴛʀʏɪɴɢ ᴛᴏ ᴅᴏᴡɴʟᴏᴀᴅ...")
         try:
-            path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Downloading...", download_msg, time.time()))
+            path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ....", download_msg, time.time()))
         except Exception as e:
             del renaming_operations[file_id]
             return await download_msg.edit(e)
@@ -201,8 +199,8 @@ async def auto_rename_files(client, message):
         except Exception as e:
             print(f"Error getting duration: {e}")
 
-        upload_msg = await download_msg.edit("Trying to upload...")
-
+        upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
+        
         ph_path = None
         c_caption = await db.get_caption(message.chat.id)
         c_thumb = await db.get_thumbnail(message.chat.id)
@@ -219,8 +217,8 @@ async def auto_rename_files(client, message):
             Image.open(ph_path).convert("RGB").save(ph_path)
             img = Image.open(ph_path)
             img.resize((320, 320))
-            img.save(ph_path, "JPEG")
-            
+            img.save(ph_path, "JPEG")                                
+
         try:
             type = media_type
             if type == "document":
@@ -230,7 +228,7 @@ async def auto_rename_files(client, message):
                     thumb=ph_path,
                     caption=caption,
                     progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
+                    progress_args=("ᴜᴘʟᴏᴀᴅɪɴɢ....", upload_msg, time.time())
                 )
             elif type == "video":
                 await client.send_video(
@@ -240,7 +238,7 @@ async def auto_rename_files(client, message):
                     thumb=ph_path,
                     duration=duration,
                     progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
+                    progress_args=("ᴜᴘʟᴏᴀᴅɪɴɢ....", upload_msg, time.time())
                 )
             elif type == "audio":
                 await client.send_audio(
@@ -250,9 +248,9 @@ async def auto_rename_files(client, message):
                     thumb=ph_path,
                     duration=duration,
                     progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
+                    progress_args=("ᴜᴘʟᴏᴀᴅɪɴɢ....", upload_msg, time.time())
                 )
-        except Exception as e:
+        except Exception as e:           
             await upload_msg.delete() 
             logs_caption2 = f"AFTER\n{firstname}\n{user_id}\n**{new_file_name}**"
             os.remove(file_path)              
@@ -263,4 +261,5 @@ async def auto_rename_files(client, message):
             else:
                 await client.send_document(FILES_CHANNEL, document=file_path, caption=logs_caption2)
                 return await upload_msg.edit(f"Error: {e}")
+        
                 
