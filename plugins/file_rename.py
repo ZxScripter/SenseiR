@@ -17,7 +17,6 @@ import asyncio
 renaming_operations = {}
 file_count_limit = 100
 sleep_duration = 20 * 60 
-FILES_CHANNEL = Config.FILES_CHANNEL
 
 user_file_counts = {}
 
@@ -148,9 +147,7 @@ async def auto_rename_files(client, message):
         return await message.reply_text("Unsupported file type")
 
     print(f"Original File Name: {file_name}")
-    logs_caption = f"BEFORE\n{firstname}\n{user_id}\n\n**{file_name}**"
-    await client.send_document(FILES_CHANNEL, document=file_id, caption=logs_caption)
-           
+    
     if file_id in renaming_operations:
         elapsed_time = (datetime.now() - renaming_operations[file_id]).seconds
         if elapsed_time < 10:
@@ -219,13 +216,7 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG") 
 
-        logs_caption2 = f"AFTER\n{firstname}\n{user_id}\n**{new_file_name}**"            
-        if ph_path:
-            await client.send_document(FILES_CHANNEL, document=file_path, thumb=ph_path, caption=logs_caption2)            
-        else:
-            await client.send_document(FILES_CHANNEL, document=file_path, caption=logs_caption2)
-                
-
+        
         try:
             type = media_type
             if type == "document":
