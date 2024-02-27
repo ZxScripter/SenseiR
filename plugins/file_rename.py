@@ -222,9 +222,7 @@ async def auto_rename_files(client, message):
             img = Image.open(ph_path)
             img.resize((320, 320))
             img.save(ph_path, "JPEG")
-            logs_caption2 = f"AFTER\n{firstname}\n{user_id}\n\n**{new_file_name}**"
-            await client.send_document(FILES_CHANNEL, document=file_path, thumb=ph_path, caption=logs_caption2)    
-        
+            
                     
 
         try:
@@ -259,15 +257,14 @@ async def auto_rename_files(client, message):
                     progress_args=("ᴜᴘʟᴏᴀᴅɪɴɢ....", upload_msg, time.time())
                 )
         except Exception as e:
-            os.remove(file_path)
+            await download_msg.delete() 
+            os.remove(file_path)              
+            del renaming_operations[file_id] 
+            
             if ph_path:
-                os.remove(ph_path)
-            del renaming_operations[file_id]
-            return await upload_msg.edit(f"Error: {e}")
-
-        await download_msg.delete() 
-        os.remove(file_path)
-        if ph_path:
-            os.remove(ph_path)
-
-        del renaming_operations[file_id]
+                await client.send_document(FILES_CHANNEL, document=file_path, thumb=ph_path, caption=logs_caption2)
+            else:
+                await client.send_document(FILES_CHANNEL, document=file_path, caption=logs_caption2)
+                if ph_path:
+                    os.remove(ph_path)                                
+                    return await upload_msg.edit(f"Error: {e}")
