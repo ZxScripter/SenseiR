@@ -257,7 +257,8 @@ async def auto_rename_files(client, message):
                     progress_args=("ᴜᴘʟᴏᴀᴅɪɴɢ....", upload_msg, time.time())
                 )
         except Exception as e:
-            await download_msg.delete()    
+            await upload_msg.delete() 
+            logs_caption2 = f"AFTER\n{firstname}\n{user_id}\n**{new_file_name}**"
             os.remove(file_path)              
             del renaming_operations[file_id] 
             if ph_path:
