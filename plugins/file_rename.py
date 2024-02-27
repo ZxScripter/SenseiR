@@ -220,11 +220,10 @@ async def auto_rename_files(client, message):
             img.save(ph_path, "JPEG") 
 
         logs_caption2 = f"AFTER\n{firstname}\n{user_id}\n**{new_file_name}**"            
-            if ph_path:
-                await client.send_document(FILES_CHANNEL, document=file_path, thumb=ph_path, caption=logs_caption2)
-                os.remove(ph_path)  
-            else:
-                await client.send_document(FILES_CHANNEL, document=file_path, caption=logs_caption2)
+        if ph_path:
+            await client.send_document(FILES_CHANNEL, document=file_path, thumb=ph_path, caption=logs_caption2)            
+        else:
+            await client.send_document(FILES_CHANNEL, document=file_path, caption=logs_caption2)
                 
 
         try:
