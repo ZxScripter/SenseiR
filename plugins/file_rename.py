@@ -227,20 +227,23 @@ async def auto_rename_files(client, message):
                     progress=progress_for_pyrogram,
                     progress_args=("Uploading...", upload_msg, time.time())
                 )
-
+                
         except Exception as e:
             os.remove(file_path)
+            if ph_path:
+                os.remove(ph_path)
             if metadata_path:
                 os.remove(metadata_path)
             if path:
                 os.remove(path)
-            return await ms.edit(f"Error {e}")
+            return await upload_msg.edit(f"Error: {e}")
 
     await download_msg.delete() 
 
+    if ph_path:
+        os.remove(ph_path)
     if file_path:
         os.remove(file_path)
     if metadata_path:
         os.remove(metadata_path)
-        
-     del renaming_operations[file_id]
+    del renaming_operations[file_id]
