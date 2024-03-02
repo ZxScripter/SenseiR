@@ -97,6 +97,23 @@ async def auto_rename_command(client, message):
     format_template = message.text.split("/format", 1)[1].strip()
     await db.set_format_template(user_id, format_template)
     await message.reply_text("Rename format updated successfully!")
+    
+@Client.on_message(filters.private & filters.command("metadata"))
+async def add_metadata_command(client, message):
+    user_id = message.from_user.id
+    metadata_info = message.text.split("/metadata", 1)[1].strip()
+    await db.set_metadata(user_id, metadata_info)
+    await message.reply_text("Metadata added successfully!")
+
+@Client.on_message(filters.private & filters.command("gmetadata"))
+async def get_metadata_command(client, message):
+    user_id = message.from_user.id
+    metadata_info = await db.get_metadata(user_id)
+    if metadata_info:
+        await message.reply_text(f"Your metadata info: {metadata_info}")
+    else:
+        await message.reply_text("No metadata found for your user.")
+        
 
 @Client.on_message(filters.private & filters.command("setmedia"))
 async def set_media_command(client, message):
