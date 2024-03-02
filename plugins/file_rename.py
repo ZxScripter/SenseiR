@@ -172,25 +172,6 @@ async def auto_rename_files(client, message):
         except Exception as e:
             return await download_msg.edit(e)
 
-        bool_metadata = await db.get_metadata(user_id)
-        if bool_metadata:
-            metadata_path = f"Metadata/{new_file_name}"
-            metadata = await db.get_metadata_code(user_id)
-            if metadata:
-                cmd = f"""ffmpeg -i "{path}" {metadata} "{metadata_path}" """
-
-                process = await asyncio.create_subprocess_shell(
-                    cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-                )
-
-                stdout, stderr = await process.communicate()
-                error = stderr.decode()
-
-                if error:
-                    return await download_msg.edit(str(error) + "\n\nError")
-
-            await download_msg.edit("Metadata added to the file successfully ✅")
-
         duration = 0
         try:
             metadata = extractMetadata(createParser(file_path))
@@ -198,13 +179,37 @@ async def auto_rename_files(client, message):
                 duration = metadata.get('duration').seconds
         except Exception as e:
             print(f"Error getting duration: {e}")
+    await ms.edit("__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Fᴇᴛᴄʜɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ....**")
+    metadat = await db.get_metadata(user_id)
+    
+    if metadat:
+        
+        await ms.edit("I Fᴏᴜɴᴅ Yᴏᴜʀ Mᴇᴛᴀᴅᴀᴛᴀ\n\n__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Aᴅᴅɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ Tᴏ Fɪʟᴇ....**")
+        cmd = f"""ffmpeg -i "{dl}" {metadat} "{metadata_path}" """
+
+        process = await asyncio.create_subprocess_shell(
+            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+            
+
+        stdout, stderr = await process.communicate()
+        er = stderr.decode()
+
+        try:
+            if er:
+                await ms.edit(str(er) + "\n\n**Error**")
+        except BaseException:
+            pass
+
+    await ms.edit("Mᴇᴛᴀᴅᴀᴛᴀ ᴀᴅᴅᴇᴅ ᴛᴏ ᴛʜᴇ ғɪʟᴇ sᴜᴄᴄᴇssғᴜʟʟʏ ✅\n\n⚠️__**Please wait...**__\n**Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....**")
+    type = update.data.split("_")[1]
 
         upload_msg = await download_msg.edit("Uploading...")
         try:
             if media_type == "document":
                 await client.send_document(
                     message.chat.id,
-                    document=metadata_path if bool_metadata else file_path,
+                    document=metadata_path,
                     caption=new_file_name,
                     progress=progress_for_pyrogram,
                     progress_args=("Uploading...", upload_msg, time.time())
@@ -212,7 +217,7 @@ async def auto_rename_files(client, message):
             elif media_type == "video":
                 await client.send_video(
                     message.chat.id,
-                    document=metadata_path if bool_metadata else file_path,
+                    document=metadata_path,
                     caption=new_file_name,
                     duration=duration,
                     progress=progress_for_pyrogram,
@@ -221,7 +226,7 @@ async def auto_rename_files(client, message):
             elif media_type == "audio":
                 await client.send_audio(
                     message.chat.id,
-                    document=metadata_path if bool_metadata else file_path,
+                    document=metadata_path,
                     caption=new_file_name,
                     duration=duration,
                     progress=progress_for_pyrogram,
