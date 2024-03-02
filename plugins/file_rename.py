@@ -214,72 +214,72 @@ async def auto_rename_files(client, message):
     await ms.edit("Mᴇᴛᴀᴅᴀᴛᴀ ᴀᴅᴅᴇᴅ ᴛᴏ ᴛʜᴇ ғɪʟᴇ sᴜᴄᴄᴇssғᴜʟʟʏ ✅\n\n⚠️__**Please wait...**__\n**Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....**")
     type = update.data.split("_")[1]
 
-        duration = 0
-        try:
-            metadata = extractMetadata(createParser(file_path))
-            if metadata.has("duration"):
-                duration = metadata.get('duration').seconds
-        except Exception as e:
-            print(f"Error getting duration: {e}")
+    duration = 0
+    try:
+        metadata = extractMetadata(createParser(file_path))
+        if metadata.has("duration"):
+            duration = metadata.get('duration').seconds
+    except Exception as e:
+        print(f"Error getting duration: {e}")
 
-        upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
+    upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
+    
+    ph_path = None
+    c_caption = await db.get_caption(message.chat.id)
+    c_thumb = await db.get_thumbnail(message.chat.id)
+
+    caption = c_caption.format(filename=new_file_name, filesize=humanbytes(message.document.file_size), duration=convert(duration)) if c_caption else f"**{new_file_name}**"
+
+    if c_thumb:
+        ph_path = await client.download_media(c_thumb)
+        print(f"Thumbnail downloaded successfully. Path: {ph_path}")
+    elif media_type == "video" and message.video.thumbs:
+        ph_path = await client.download_media(message.video.thumbs[0].file_id)
+
+    if ph_path:
+        Image.open(ph_path).convert("RGB").save(ph_path)
+        img = Image.open(ph_path)
+        img.resize((320, 320))
+        img.save(ph_path, "JPEG") 
+
         
-        ph_path = None
-        c_caption = await db.get_caption(message.chat.id)
-        c_thumb = await db.get_thumbnail(message.chat.id)
-
-        caption = c_caption.format(filename=new_file_name, filesize=humanbytes(message.document.file_size), duration=convert(duration)) if c_caption else f"**{new_file_name}**"
-
-        if c_thumb:
-            ph_path = await client.download_media(c_thumb)
-            print(f"Thumbnail downloaded successfully. Path: {ph_path}")
-        elif media_type == "video" and message.video.thumbs:
-            ph_path = await client.download_media(message.video.thumbs[0].file_id)
-
-        if ph_path:
-            Image.open(ph_path).convert("RGB").save(ph_path)
-            img = Image.open(ph_path)
-            img.resize((320, 320))
-            img.save(ph_path, "JPEG") 
-
+    try:
+        if media_type == "document":
+            await client.send_document(
+                message.chat.id,
+                document=metadata_path,
+                caption=new_file_name,
+                progress=progress_for_pyrogram,
+                progress_args=("Uploading...", upload_msg, time.time())
+            )
+        elif media_type == "video":
+            await client.send_video(
+                message.chat.id,
+                document=metadata_path,
+                caption=new_file_name,
+                duration=duration,
+                progress=progress_for_pyrogram,
+                progress_args=("Uploading...", upload_msg, time.time())
+            )
+        elif media_type == "audio":
+            await client.send_audio(
+                message.chat.id,
+                document=metadata_path,
+                caption=new_file_name,
+                duration=duration,
+                progress=progress_for_pyrogram,
+                progress_args=("Uploading...", upload_msg, time.time())
+            )
             
-        try:
-            if media_type == "document":
-                await client.send_document(
-                    message.chat.id,
-                    document=metadata_path,
-                    caption=new_file_name,
-                    progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
-                )
-            elif media_type == "video":
-                await client.send_video(
-                    message.chat.id,
-                    document=metadata_path,
-                    caption=new_file_name,
-                    duration=duration,
-                    progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
-                )
-            elif media_type == "audio":
-                await client.send_audio(
-                    message.chat.id,
-                    document=metadata_path,
-                    caption=new_file_name,
-                    duration=duration,
-                    progress=progress_for_pyrogram,
-                    progress_args=("Uploading...", upload_msg, time.time())
-                )
-                
-        except Exception as e:
-            os.remove(file_path)
-            if ph_path:
-                os.remove(ph_path)
-            if metadata_path:
-                os.remove(metadata_path)
-            if path:
-                os.remove(path)
-            return await upload_msg.edit(f"Error: {e}")
+    except Exception as e:
+        os.remove(file_path)
+        if ph_path:
+            os.remove(ph_path)
+        if metadata_path:
+            os.remove(metadata_path)
+        if path:
+            os.remove(path)
+        return await upload_msg.edit(f"Error: {e}")
 
     await download_msg.delete() 
 
