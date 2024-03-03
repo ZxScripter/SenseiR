@@ -1,6 +1,7 @@
 from pyrogram import Client, filters
 from pyrogram.errors import FloodWait
 from pyrogram.types import InputMediaDocument, Message 
+from helper.utils import CANT_CONFIG_GROUP_MSG
 from PIL import Image
 from datetime import datetime
 from hachoir.metadata import extractMetadata
@@ -96,23 +97,40 @@ async def auto_rename_command(client, message):
     user_id = message.from_user.id
     format_template = message.text.split("/format", 1)[1].strip()
     await db.set_format_template(user_id, format_template)
-    await message.reply_text("Rename format updated successfully!")
-    
-@Client.on_message(filters.private & filters.command("metadata"))
-async def add_metadata_command(client, message):
-    user_id = message.from_user.id
-    metadata_info = message.text.split("/metadata", 1)[1].strip()
-    await db.set_metadata(user_id, metadata_info)
-    await message.reply_text("Metadata added successfully!")
+    await message.reply_text("Rename format updated successfully!")   
 
-@Client.on_message(filters.private & filters.command("gmetadata"))
-async def get_metadata_command(client, message):
-    user_id = message.from_user.id
-    metadata_info = await db.get_metadata(user_id)
-    if metadata_info:
-        await message.reply_text(f"Your metadata info: {metadata_info}")
+@Client.on_message((filters.group | filters.private) & filters.command('set_metadata'))
+async def set_metadata(client, message):
+    
+    if not await db.is_user_exist(message.from_user.id):
+        await CANT_CONFIG_GROUP_MSG(client, message)
+        return
+    
+    try:
+        metadata = await client.ask(text=Txt.SEND_METADATA, chat_id=message.chat.id, user_id=message.from_user.id, filters=filters.text, timeout=30)
+
+    except TimeoutError:
+        await message.reply_text("Error!!\n\nRequest timed out.\nRestart by using /set_ffmpeg", reply_to_message_id= metadata.id)
+        return
+    
+    await db.set_metadata(message.from_user.id, metadata=metadata.text)
+    await message.reply_text("✅ __**Mᴇᴛᴀᴅᴀᴛᴀ Cᴏᴅᴇ Sᴀᴠᴇᴅ**__", reply_to_message_id=message.id)
+    
+    
+@Client.on_message((filters.group | filters.private) & filters.command('see_metadata'))
+async def see_metadata(client, message):
+    if not await db.is_user_exist(message.from_user.id):
+        await CANT_CONFIG_GROUP_MSG(client, message)
+        return
+    
+    Sensei = await message.reply_text(text="**Please Wait...**", reply_to_message_id=message.id)
+
+    metadata = await db.get_metadata(message.from_user.id)
+    
+    if metadata:
+        await Sensei.edit(f"✅ <b>Yᴏᴜʀ Cᴜʀʀᴇɴᴛ Mᴇᴛᴀᴅᴀᴛᴀ Cᴏᴅᴇ ɪs :-</b>\n\n<code>{metadata}</code>")
     else:
-        await message.reply_text("No metadata found for your user.")
+        await Sensei.edit(f"😔 __**Yᴏᴜ Dᴏɴ'ᴛ Hᴀᴠᴇ Aɴy Mᴇᴛᴀᴅᴀᴛᴀ Cᴏᴅᴇ**__")
         
 
 @Client.on_message(filters.private & filters.command("setmedia"))
@@ -189,12 +207,41 @@ async def auto_rename_files(client, message):
         except Exception as e:
             return await download_msg.edit(e)
 
-    await ms.edit("__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Fᴇᴛᴄʜɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ....**")
+
+        duration = 0
+        try:
+            metadata = extractMetadata(createParser(file_path))
+            if metadata.has("duration"):
+                duration = metadata.get('duration').seconds
+        except Exception as e:
+            print(f"Error getting duration: {e}")
+
+        upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
+        
+        ph_path = None
+        c_caption = await db.get_caption(message.chat.id)
+        c_thumb = await db.get_thumbnail(message.chat.id)
+
+        caption = c_caption.format(filename=new_file_name, filesize=humanbytes(message.document.file_size), duration=convert(duration)) if c_caption else f"**{new_file_name}**"
+
+        if c_thumb:
+            ph_path = await client.download_media(c_thumb)
+            print(f"Thumbnail downloaded successfully. Path: {ph_path}")
+        elif media_type == "video" and message.video.thumbs:
+            ph_path = await client.download_media(message.video.thumbs[0].file_id)
+
+        if ph_path:
+            Image.open(ph_path).convert("RGB").save(ph_path)
+            img = Image.open(ph_path)
+            img.resize((320, 320))
+            img.save(ph_path, "JPEG") 
+
+    await download_msg.edit("__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Fᴇᴛᴄʜɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ....**")
     metadat = await db.get_metadata(user_id)
     
     if metadat:
         
-        await ms.edit("I Fᴏᴜɴᴅ Yᴏᴜʀ Mᴇᴛᴀᴅᴀᴛᴀ\n\n__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Aᴅᴅɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ Tᴏ Fɪʟᴇ....**")
+        await download_msg.edit("I Fᴏᴜɴᴅ Yᴏᴜʀ Mᴇᴛᴀᴅᴀᴛᴀ\n\n__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Aᴅᴅɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ Tᴏ Fɪʟᴇ....**")
         cmd = f"""ffmpeg -i "{dl}" {metadat} "{metadata_path}" """
 
         process = await asyncio.create_subprocess_shell(
@@ -211,38 +258,8 @@ async def auto_rename_files(client, message):
         except BaseException:
             pass
 
-    await ms.edit("Mᴇᴛᴀᴅᴀᴛᴀ ᴀᴅᴅᴇᴅ ᴛᴏ ᴛʜᴇ ғɪʟᴇ sᴜᴄᴄᴇssғᴜʟʟʏ ✅\n\n⚠️__**Please wait...**__\n**Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....**")
+    await download_msg.edit("Mᴇᴛᴀᴅᴀᴛᴀ ᴀᴅᴅᴇᴅ ᴛᴏ ᴛʜᴇ ғɪʟᴇ sᴜᴄᴄᴇssғᴜʟʟʏ ✅\n\n⚠️__**Please wait...**__\n**Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....**")
     type = update.data.split("_")[1]
-
-    duration = 0
-    try:
-        metadata = extractMetadata(createParser(file_path))
-        if metadata.has("duration"):
-            duration = metadata.get('duration').seconds
-    except Exception as e:
-        print(f"Error getting duration: {e}")
-
-    upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
-    
-    ph_path = None
-    c_caption = await db.get_caption(message.chat.id)
-    c_thumb = await db.get_thumbnail(message.chat.id)
-
-    caption = c_caption.format(filename=new_file_name, filesize=humanbytes(message.document.file_size), duration=convert(duration)) if c_caption else f"**{new_file_name}**"
-
-    if c_thumb:
-        ph_path = await client.download_media(c_thumb)
-        print(f"Thumbnail downloaded successfully. Path: {ph_path}")
-    elif media_type == "video" and message.video.thumbs:
-        ph_path = await client.download_media(message.video.thumbs[0].file_id)
-
-    if ph_path:
-        Image.open(ph_path).convert("RGB").save(ph_path)
-        img = Image.open(ph_path)
-        img.resize((320, 320))
-        img.save(ph_path, "JPEG") 
-
-        
     try:
         if media_type == "document":
             await client.send_document(
@@ -281,7 +298,7 @@ async def auto_rename_files(client, message):
             os.remove(path)
         return await upload_msg.edit(f"Error: {e}")
 
-    await download_msg.delete() 
+    await upload_msg.delete() 
 
     if ph_path:
         os.remove(ph_path)
