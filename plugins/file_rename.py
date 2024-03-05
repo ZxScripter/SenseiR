@@ -1,4 +1,6 @@
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
+from pyrogram.enums import MessageMediaType
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply
 from pyrogram.errors import FloodWait
 from pyrogram.types import InputMediaDocument, Message 
 from helper.utils import CANT_CONFIG_GROUP_MSG
