@@ -75,11 +75,11 @@ class Database:
         user = await self.col.find_one({'_id': int(id)})
         return user.get('media_type', None)
 
-    async def set_metadata(self, user_id, metadata):
-        await self.col.update_one({'id': int(user_id)}, {'$set': {'metadata': metadata}})
+    async def set_metadata(self, id, metadata):
+        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata': metadata}})
 
     async def get_metadata(self, id):
-        user = await self.col.find_one({'id': int(id)})
+        user = await self.col.find_one({'_id': int(id)})
         return user.get('metadata', None)
 
 
