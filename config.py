@@ -6,7 +6,7 @@ class Config(object):
     # pyro client config
     API_ID    = os.environ.get("API_ID", "26376042")
     API_HASH  = os.environ.get("API_HASH", "1f5343b0646645ca1eaf7c4759fc248f")
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6973262651:AAH9E-0TuJeavDXHK7KBwH4ObKcV2exIZQA") 
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "6704115862:AAGMzIiqZyKH5PUXoi5MsicRp6sSg0HAfDU") 
    
     # database config
     DB_NAME = os.environ.get("DB_NAME","pyro-botz")     
@@ -16,9 +16,9 @@ class Config(object):
     BOT_UPTIME  = time.time()
     START_PIC   = os.environ.get("START_PIC", "https://graph.org/file/3ebcefec1b1f0b95f7759.jpg")
     ADMIN       = [int(admin) if id_pattern.search(admin) else admin for admin in os.environ.get('ADMIN', '2036803347 6446763201').split()]
-    FORCE_SUB   = os.environ.get("FORCE_SUB", "Ani_Bots_Updates") 
-    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001934076980"))   
-    FILES_CHANNEL = int(os.environ.get("FILES_CHANNEL", "-1002015697866"))
+    FORCE_SUB   = os.environ.get("FORCE_SUB", "smiley_bots") 
+    LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1002108819224"))   
+    FILES_CHANNEL = int(os.environ.get("FILES_CHANNEL", "-1002108819224"))
     
     # wes response configuration     
     WEBHOOK = bool(os.environ.get("WEBHOOK", True))
