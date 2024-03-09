@@ -82,12 +82,5 @@ class Database:
         user = await self.col.find_one({'id': int(id)})
         return user.get('metadata', None)
 
-    async def set_metadata_code(self, id, metadata_code):
-        await self.col.update_one({'_id': int(id)}, {'$set': {'metadata_code': metadata_code}})
-
-    async def get_metadata_code(self, id):
-        user = await self.col.find_one({'_id': int(id)})
-        return user.get('metadata_code', None)
-
 
 db = Database(Config.DB_URL, Config.DB_NAME)
