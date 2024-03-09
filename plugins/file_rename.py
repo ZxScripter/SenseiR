@@ -1,29 +1,21 @@
-from pyrogram import Client, filters, enums
-from pyrogram.enums import MessageMediaType
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply
-from pyrogram.errors import FloodWait
-from pyrogram.types import InputMediaDocument, Message 
-from helper.utils import CANT_CONFIG_GROUP_MSG
-from PIL import Image
-from datetime import datetime
-from hachoir.metadata import extractMetadata
-from hachoir.parser import createParser
-from helper.utils import progress_for_pyrogram, humanbytes, convert
+from pyrogram import Client, filters
+from pyrogram.types import Message
+from helper.utils import CANT_CONFIG_GROUP_MSG, progress_for_pyrogram, humanbytes, convert
 from helper.database import db
 from helper.admins import is_admin
 from config import Config
+from PIL import Image
+from hachoir.metadata import extractMetadata
+from hachoir.parser import createParser
 import os
-import time
 import re
 import asyncio
+import time
 
 renaming_operations = {}
 file_count_limit = 100
 sleep_duration = 20 * 60 
 
-if not os.path.isdir("Metadata"):
-    os.mkdir("Metadata")
-    
 user_file_counts = {}
 
 pattern1 = re.compile(r'S(\d+)(?:E|EP)(\d+)')
@@ -103,20 +95,10 @@ async def auto_rename_command(client, message):
 
 @Client.on_message((filters.group | filters.private) & filters.command('set_metadata'))
 async def set_metadata(client, message):
-    
-    if not await db.is_user_exist(message.from_user.id):
-        await CANT_CONFIG_GROUP_MSG(client, message)
-        return
-    
-    try:
-        metadata = await client.ask(text=Txt.SEND_METADATA, chat_id=message.chat.id, user_id=message.from_user.id, filters=filters.text, timeout=30)
-
-    except TimeoutError:
-        await message.reply_text("Error!!\n\nRequest timed out.\nRestart by using /set_ffmpeg", reply_to_message_id= metadata.id)
-        return
-    
-    await db.set_metadata(message.from_user.id, metadata=metadata.text)
-    await message.reply_text("✅ __**Mᴇᴛᴀᴅᴀᴛᴀ Cᴏᴅᴇ Sᴀᴠᴇᴅ**__", reply_to_message_id=message.id)
+    user_id = message.from_user.id
+    metadata = message.text.split("/set_metadata", 1)[1].strip()
+    await db.set_metadata(user_id, metadata)
+    await message.reply_text("metadata updated successfully!")
     
     
 @Client.on_message((filters.group | filters.private) & filters.command('see_metadata'))
@@ -148,7 +130,10 @@ async def auto_rename_files(client, message):
     is_user_admin = await is_admin(user_id)
     if not is_user_admin and user_id not in Config.ADMIN:        
         await message.reply_text("You are not authorized to use me!")
-        return    
+        return  
+    
+    if not os.path.isdir("Metadata"):
+        os.mkdir("Metadata")   
 
     format_template = await db.get_format_template(user_id)
     media_preference = await db.get_media_preference(user_id)
@@ -207,7 +192,7 @@ async def auto_rename_files(client, message):
         try:
             path = await client.download_media(message=file, file_name=file_path, progress=progress_for_pyrogram, progress_args=("Downloading...", download_msg, time.time()))
         except Exception as e:
-            return await download_msg.edit(e)
+            return await download_msg.edit(str(e))
 
 
         duration = 0
@@ -218,7 +203,7 @@ async def auto_rename_files(client, message):
         except Exception as e:
             print(f"Error getting duration: {e}")
 
-        upload_msg = await download_msg.edit("ᴛʀʏɪɴɢ ᴛᴏ ᴜᴘʟᴏᴀᴅɪɴɢ....")
+        upload_msg = await download_msg.edit("Uploading...")
         
         ph_path = None
         c_caption = await db.get_caption(message.chat.id)
@@ -238,74 +223,66 @@ async def auto_rename_files(client, message):
             img.resize((320, 320))
             img.save(ph_path, "JPEG") 
 
-    await download_msg.edit("__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Fᴇᴛᴄʜɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ....**")
-    metadat = await db.get_metadata(user_id)
-    
-    if metadat:
-        
-        await download_msg.edit("I Fᴏᴜɴᴅ Yᴏᴜʀ Mᴇᴛᴀᴅᴀᴛᴀ\n\n__**Pʟᴇᴀsᴇ Wᴀɪᴛ...**__\n**Aᴅᴅɪɴɢ Mᴇᴛᴀᴅᴀᴛᴀ Tᴏ Fɪʟᴇ....**")
-        cmd = f"""ffmpeg -i "{dl}" {metadat} "{metadata_path}" """
+        _bool_metadata = await db.get_metadata(message.chat.id)
 
-        process = await asyncio.create_subprocess_shell(
-            cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-            
+        if _bool_metadata:
+            metadata_path = f"Metadata/{new_file_name}"
+            metadata_code = await db.get_metadata(user_id)
 
-        stdout, stderr = await process.communicate()
-        er = stderr.decode()
+            await download_msg.edit("Adding Metadata...")
+            cmd = f"""ffmpeg -i "{path}" {metadata_code} "{metadata_path}" """
+
+            process = await asyncio.create_subprocess_shell(
+                cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            )
+
+            stdout, stderr = await process.communicate()
+
+            await download_msg.edit("Metadata added to the file successfully ✅\n\nUploading...")
 
         try:
-            if er:
-                await ms.edit(str(er) + "\n\n**Error**")
-        except BaseException:
-            pass
+            if media_type == "document":
+                await client.send_document(
+                    message.chat.id,
+                    document=metadata_path if _bool_metadata else file_path,
+                    caption=new_file_name,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Uploading...", upload_msg, time.time())
+                )
+            elif media_type == "video":
+                await client.send_video(
+                    message.chat.id,
+                    document=metadata_path if _bool_metadata else file_path,
+                    caption=new_file_name,
+                    duration=duration,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Uploading...", upload_msg, time.time())
+                )
+            elif media_type == "audio":
+                await client.send_audio(
+                    message.chat.id,
+                    document=metadata_path if _bool_metadata else file_path,
+                    caption=new_file_name,
+                    duration=duration,
+                    progress=progress_for_pyrogram,
+                    progress_args=("Uploading...", upload_msg, time.time())
+                )
+                
+        except Exception as e:
+            os.remove(file_path)
+            if ph_path:
+                os.remove(ph_path)
+            if metadata_path:
+                os.remove(metadata_path)
+            if path:
+                os.remove(path)
+            return await upload_msg.edit(f"Error: {e}")
 
-    await download_msg.edit("Mᴇᴛᴀᴅᴀᴛᴀ ᴀᴅᴅᴇᴅ ᴛᴏ ᴛʜᴇ ғɪʟᴇ sᴜᴄᴄᴇssғᴜʟʟʏ ✅\n\n⚠️__**Please wait...**__\n**Tʀyɪɴɢ Tᴏ Uᴩʟᴏᴀᴅɪɴɢ....**")
-    type = update.data.split("_")[1]
-    try:
-        if media_type == "document":
-            await client.send_document(
-                message.chat.id,
-                document=metadata_path,
-                caption=new_file_name,
-                progress=progress_for_pyrogram,
-                progress_args=("Uploading...", upload_msg, time.time())
-            )
-        elif media_type == "video":
-            await client.send_video(
-                message.chat.id,
-                document=metadata_path,
-                caption=new_file_name,
-                duration=duration,
-                progress=progress_for_pyrogram,
-                progress_args=("Uploading...", upload_msg, time.time())
-            )
-        elif media_type == "audio":
-            await client.send_audio(
-                message.chat.id,
-                document=metadata_path,
-                caption=new_file_name,
-                duration=duration,
-                progress=progress_for_pyrogram,
-                progress_args=("Uploading...", upload_msg, time.time())
-            )
-            
-    except Exception as e:
-        os.remove(file_path)
+        await upload_msg.delete() 
+
         if ph_path:
             os.remove(ph_path)
+        if file_path:
+            os.remove(file_path)
         if metadata_path:
             os.remove(metadata_path)
-        if path:
-            os.remove(path)
-        return await upload_msg.edit(f"Error: {e}")
-
-    await upload_msg.delete() 
-
-    if ph_path:
-        os.remove(ph_path)
-    if file_path:
-        os.remove(file_path)
-    if metadata_path:
-        os.remove(metadata_path)
-    del renaming_operations[file_id]
